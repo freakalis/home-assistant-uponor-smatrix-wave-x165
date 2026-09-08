@@ -1,0 +1,58 @@
+configuration:
+  sd_import:
+    name: Import from shared SD-card files
+    description: Read the configured U_BACKUP.TXT and U_LOGA.TXT paths under /share.
+  sd_backup_file:
+    name: Backup file
+    description: Path to U_BACKUP.TXT relative to the Home Assistant share folder.
+  sd_log_file:
+    name: Log file
+    description: Path to U_LOGA.TXT relative to the Home Assistant share folder.
+  controller_id:
+    name: X-165 controller ID
+    description: Eight hexadecimal digits; may be left blank when files are uploaded in Open Web UI.
+  interface_id:
+    name: I-167 display ID
+    description: Optional eight-digit ID used for house temperature and system mode.
+  mqtt_host:
+    name: MQTT host
+    description: Hostname or IP address of the MQTT broker.
+  mqtt_port:
+    name: MQTT port
+    description: TCP port of the MQTT broker.
+  mqtt_username:
+    name: MQTT username
+    description: Username accepted by the MQTT broker.
+  mqtt_password:
+    name: MQTT password
+    description: Password accepted by the MQTT broker.
+  topic_prefix:
+    name: Topic prefix
+    description: Prefix used for published Uponor state topics.
+  discovery_prefix:
+    name: Discovery prefix
+    description: Home Assistant MQTT Discovery prefix.
+  stale_after:
+    name: Stale timeout
+    description: Seconds without an update before an entity becomes unavailable.
+  device:
+    name: RTL-SDR device
+    description: Zero-based receiver index.
+  frequency:
+    name: Frequency
+    description: Receiver center frequency in hertz.
+  sample_rate:
+    name: Sample rate
+    description: RTL-SDR sample rate in samples per second.
+  ppm:
+    name: PPM correction
+    description: Receiver frequency correction in parts per million.
+  workers:
+    name: Decoder workers
+    description: Keep at 1 unless decoding cannot keep up with incoming data.
+  threshold_db:
+    name: Detection threshold
+    description: RF burst detection threshold in decibels.
+  debug_device:
+    name: Debug thermostat
+    description: Optional eight-digit thermostat ID for focused debug logging.

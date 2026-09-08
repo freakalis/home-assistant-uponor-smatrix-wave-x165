@@ -1,0 +1,58 @@
+configuration:
+  sd_import:
+    name: Importera delade SD-kortsfiler
+    description: Läs angivna U_BACKUP.TXT och U_LOGA.TXT från /share.
+  sd_backup_file:
+    name: Backupfil
+    description: Sökväg till U_BACKUP.TXT relativt Home Assistants share-mapp.
+  sd_log_file:
+    name: Loggfil
+    description: Sökväg till U_LOGA.TXT relativt Home Assistants share-mapp.
+  controller_id:
+    name: X-165 controller-ID
+    description: Åtta hexadecimala tecken; kan lämnas tomt när filer laddas upp via Open Web UI.
+  interface_id:
+    name: I-167 display-ID
+    description: Valfritt ID med åtta tecken för hustemperatur och systemläge.
+  mqtt_host:
+    name: MQTT-värd
+    description: MQTT-brokerns värdnamn eller IP-adress.
+  mqtt_port:
+    name: MQTT-port
+    description: MQTT-brokerns TCP-port.
+  mqtt_username:
+    name: MQTT-användarnamn
+    description: Användarnamn som godtas av MQTT-brokern.
+  mqtt_password:
+    name: MQTT-lösenord
+    description: Lösenord som godtas av MQTT-brokern.
+  topic_prefix:
+    name: Ämnesprefix
+    description: Prefix för publicerade Uponor-tillstånd i MQTT.
+  discovery_prefix:
+    name: Discovery-prefix
+    description: Prefix för Home Assistant MQTT Discovery.
+  stale_after:
+    name: Timeout för inaktuell data
+    description: Sekunder utan uppdatering innan en entitet blir otillgänglig.
+  device:
+    name: RTL-SDR-enhet
+    description: Mottagarens nollbaserade index.
+  frequency:
+    name: Frekvens
+    description: Mottagarens centerfrekvens i hertz.
+  sample_rate:
+    name: Samplingsfrekvens
+    description: Antal RTL-SDR-samplingar per sekund.
+  ppm:
+    name: PPM-korrigering
+    description: Mottagarens frekvenskorrigering i miljondelar.
+  workers:
+    name: Avkodningsprocesser
+    description: Behåll 1 om avkodningen hinner med inkommande data.
+  threshold_db:
+    name: Detekteringströskel
+    description: Tröskelvärde för RF-signaler i decibel.
+  debug_device:
+    name: Termostat för felsökning
+    description: Valfritt termostat-ID med åtta tecken för fokuserad debugloggning.
