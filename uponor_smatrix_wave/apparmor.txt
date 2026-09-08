@@ -1,0 +1,31 @@
+#include <tunables/global>
+
+profile uponor_smatrix_wave flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+
+  # Python receiver, ingress UI, and MQTT client
+  file,
+  signal (send,receive),
+  network inet stream,
+  network inet6 stream,
+  network inet dgram,
+  network inet6 dgram,
+
+  /usr/local/bin/python ix,
+  /usr/local/bin/python3 ix,
+  /usr/local/bin/python3.12 ix,
+  /usr/bin/rtl_sdr ix,
+
+  # App data and read-only SD-card imports
+  /app/** r,
+  /data/** rwk,
+  /share/** r,
+  /tmp/** rwk,
+
+  # RTL-SDR through the raw USB mapping enabled in config.json
+  /dev/bus/usb/** rw,
+  /sys/bus/usb/** r,
+  /sys/devices/** r,
+  /proc/** r,
+}
