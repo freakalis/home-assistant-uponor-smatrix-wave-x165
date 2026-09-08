@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       build_matrix: ${{ steps.matrix.outputs.matrix }}
+      architectures: ${{ steps.info.outputs.architectures }}
       image_name: ${{ steps.normalize.outputs.image_name }}
       registry_prefix: ${{ steps.normalize.outputs.registry_prefix }}
       version: ${{ steps.normalize.outputs.version }}
@@ -86,7 +87,7 @@ jobs:
       - name: Publish multi-architecture manifest
         uses: home-assistant/builder/actions/publish-multi-arch-manifest@2026.06.0
         with:
-          architectures: amd64
+          architectures: ${{ needs.prepare.outputs.architectures }}
           container-registry-password: ${{ secrets.GITHUB_TOKEN }}
           image-name: ${{ needs.prepare.outputs.image_name }}
           image-tags: |
