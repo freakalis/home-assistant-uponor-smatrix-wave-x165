@@ -15,6 +15,11 @@ needed. Only one app or process can use the receiver at a time.
 The default radio settings are 868250000 Hz, 250000 samples/s, PPM correction
 0 and receiver index 0.
 
+Home Assistant maps the receiver into the container because `config.json` sets
+`usb: true`. The included AppArmor profile permits the required
+`/dev/bus/usb` access while protection mode remains enabled. No firewall rule,
+host networking, privileged mode or fixed USB device path is required.
+
 ## Initial setup
 
 1. Install the app and connect the RTL-SDR receiver.
@@ -87,7 +92,10 @@ for reception cannot set temperatures.
 
 ## Troubleshooting
 
-- If the USB device is busy, stop any other SDR program and restart the app.
+- If the RTL-SDR cannot be opened, first confirm that it appears under
+  **Settings → System → Hardware**, then stop any other SDR app and restart this
+  app after reconnecting the receiver. Keep protection mode enabled. Include
+  any `apparmor="DENIED"` message from the host audit log in a bug report.
 - If no reports appear, verify the antenna, radio settings and controller ID.
   Wait at least ten minutes before judging periodic reception.
 - If MQTT connects but entities do not appear, verify the discovery prefix and
