@@ -2,9 +2,16 @@
 
 This unofficial Home Assistant app listens for observed Uponor Smatrix Wave RF
 messages at 868.250 MHz and publishes decoded state through MQTT Discovery. It
-has been tested on Home Assistant OS running on an amd64 Intel NUC.
+supports Home Assistant OS on `amd64` and `aarch64`. Physical RTL-SDR reception
+has been tested on an amd64 Intel NUC; the ARM64 build still needs validation on
+real hardware.
 
 ## Hardware
+
+Supported architectures are `amd64` and `aarch64`. Typical `aarch64` hosts
+include 64-bit Raspberry Pi 3/4/5, Home Assistant Green and Home Assistant
+Yellow. Please report the host model, app logs, CPU usage and USB reconnect
+behaviour when testing on ARM64.
 
 Connect an RTL2832U-compatible RTL-SDR receiver and an antenna suitable for the
 European 868 MHz band to the Home Assistant host. The tested receiver identifies

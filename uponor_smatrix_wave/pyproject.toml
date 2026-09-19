@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "uponor-smatrix-wave-x165"
-version = "0.1.0"
+version = "0.2.0"
 description = "Local receive-only T-165 / X-165 Smatrix Wave decoder and MQTT bridge"
 readme = "README.md"
 license = {file = "LICENSE"}

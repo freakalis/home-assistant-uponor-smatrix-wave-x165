@@ -9,13 +9,15 @@ through MQTT Discovery.
 
 ## Requirements
 
-- Home Assistant OS on `amd64` hardware
+- Home Assistant OS on `amd64` or `aarch64` hardware
 - An RTL2832U-compatible RTL-SDR receiver with an antenna for 868 MHz
 - An MQTT broker reachable from Home Assistant
 - An Uponor Smatrix Wave X-165 installation
 
-The tested receiver reports a Rafael Micro R820T-family tuner. Other hardware
-and architectures have not yet been validated.
+The tested receiver reports a Rafael Micro R820T-family tuner. Physical
+RTL-SDR reception has been validated on `amd64`; `aarch64` builds are available
+for testing on 64-bit Raspberry Pi, Home Assistant Green and Home Assistant
+Yellow. Other receiver hardware has not yet been validated.
 
 ## Installation
 

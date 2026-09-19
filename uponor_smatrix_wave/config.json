@@ -1,11 +1,11 @@
 {
   "name": "Uponor Smatrix Wave X-165",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "slug": "uponor_smatrix_wave",
   "description": "Local receive-only T-165 / X-165 MQTT bridge using RTL-SDR",
   "url": "https://github.com/freakalis/home-assistant-uponor-smatrix-wave-x165/tree/main/uponor_smatrix_wave",
   "image": "ghcr.io/freakalis/home-assistant-uponor-smatrix-wave-x165",
-  "arch": ["amd64"],
+  "arch": ["amd64", "aarch64"],
   "init": false,
   "usb": true,
   "ingress": true,
