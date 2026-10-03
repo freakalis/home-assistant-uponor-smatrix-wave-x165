@@ -32,3 +32,6 @@ jobs:
       - name: Import package
         working-directory: ./uponor_smatrix_wave
         run: python -c "import uponor_smatrix_wave_x165"
+      - name: Test I-167 frame parser
+        working-directory: ./uponor_smatrix_wave
+        run: python -m unittest discover -s tests -p 'test_*.py'

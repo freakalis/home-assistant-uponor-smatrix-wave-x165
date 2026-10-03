@@ -7,8 +7,13 @@ from .protocol import PREAMBLE_SYNC, FrameError, uponor_temperature, validate_fr
 
 REMOTE_FIXED_17_19 = bytes.fromhex("00 0B 00")
 REMOTE_FIXED_21_23 = bytes.fromhex("00 08 10")
-REMOTE_FIXED_25_35 = bytes.fromhex("00 05 64 01 9A 03 B6 02 A8 03 14")
-REMOTE_FIXED_38_39 = bytes.fromhex("00 12")
+REMOTE_FIXED_26_27 = bytes.fromhex("05 64")
+REMOTE_FIXED_32_35 = bytes.fromhex("02 A8 03 14")
+# The byte-only builder below still reproduces frames from our reference
+# installation. These values are not asserted by the receive parser: captured
+# L44 frames vary at byte 25 and bytes 38-39, and min/max are installation data.
+REMOTE_REFERENCE_25_35 = bytes.fromhex("00 05 64 01 9A 03 B6 02 A8 03 14")
+REMOTE_REFERENCE_38_39 = bytes.fromhex("00 12")
 
 
 def validate_i167_frame(raw: bytes, *, interface_id: bytes) -> bytes:
@@ -41,6 +46,10 @@ class RemoteSetpointFrame:
     room_secondary: int
     status_byte: int
     raw_setpoint: int
+    unknown_byte_25: int
+    min_setpoint_raw: int
+    max_setpoint_raw: int
+    unknown_field_38_39: int
 
     @property
     def remote_enabled(self) -> bool:
@@ -57,7 +66,7 @@ def parse_remote_setpoint(raw: bytes, *, interface_id: bytes) -> RemoteSetpointF
     if len(raw) != 44 or raw[9:13] != interface_id or raw[13:16] != bytes.fromhex("01 17 00"):
         raise FrameError("not a supported remote-setpoint frame for this interface")
     if (raw[17:20] != REMOTE_FIXED_17_19 or raw[21:24] != REMOTE_FIXED_21_23
-            or raw[25:36] != REMOTE_FIXED_25_35 or raw[38:40] != REMOTE_FIXED_38_39):
+            or raw[26:28] != REMOTE_FIXED_26_27 or raw[32:36] != REMOTE_FIXED_32_35):
         raise FrameError("unexpected remote-setpoint frame structure")
     if raw[24] not in (0x80, 0x88):
         raise FrameError(f"unexpected remote-control status {raw[24]:02X}")
@@ -70,6 +79,10 @@ def parse_remote_setpoint(raw: bytes, *, interface_id: bytes) -> RemoteSetpointF
         room_secondary=raw[20],
         status_byte=raw[24],
         raw_setpoint=int.from_bytes(raw[36:38], "big"),
+        unknown_byte_25=raw[25],
+        min_setpoint_raw=int.from_bytes(raw[28:30], "big"),
+        max_setpoint_raw=int.from_bytes(raw[30:32], "big"),
+        unknown_field_38_39=int.from_bytes(raw[38:40], "big"),
     )
 
 
@@ -77,7 +90,11 @@ def build_remote_setpoint(
     *, interface_id: bytes, room_primary: int, room_secondary: int,
     remote_enabled: bool, raw_setpoint: int,
 ) -> bytes:
-    """Build an L44 frame as bytes only; this function performs no RF transmission."""
+    """Reproduce our reference installation's L44 bytes; performs no RF transmission.
+
+    The fixed min/max and unknown fields here are not universal. Do not use
+    this byte-only helper as a general-purpose remote-setpoint transmitter.
+    """
     if len(interface_id) != 4:
         raise ValueError("interface_id must contain exactly 4 bytes")
     if not all(0 <= value <= 0xFF for value in (room_primary, room_secondary)):
@@ -95,9 +112,9 @@ def build_remote_setpoint(
     raw.extend((room_secondary,))
     raw.extend(REMOTE_FIXED_21_23)
     raw.extend((0x88 if remote_enabled else 0x80,))
-    raw.extend(REMOTE_FIXED_25_35)
+    raw.extend(REMOTE_REFERENCE_25_35)
     raw.extend(raw_setpoint.to_bytes(2, "big"))
-    raw.extend(REMOTE_FIXED_38_39)
+    raw.extend(REMOTE_REFERENCE_38_39)
     raw.extend(bytes(4))
     return _finish_i167_frame(raw)
 
