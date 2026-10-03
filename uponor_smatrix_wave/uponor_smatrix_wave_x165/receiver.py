@@ -24,7 +24,7 @@ from uponor_smatrix_wave_x165.rtl_input import RtlError, RtlSdrDllStream, RtlSdr
 from uponor_smatrix_wave_x165.state import DeviceRegistry, display_temperature
 from uponor_smatrix_wave_x165.mqtt_bridge import MqttBridge, add_mqtt_arguments, config_from_args
 from uponor_smatrix_wave_x165.frame_log import FrameJournal
-from uponor_smatrix_wave_x165.interface import parse_house_temperature, parse_system_mode
+from uponor_smatrix_wave_x165.interface import parse_house_temperature, parse_remote_setpoint, parse_system_mode
 
 
 def thermostat_id(value: str) -> bytes:
@@ -48,7 +48,7 @@ def arguments(default_controller_id=None) -> argparse.Namespace:
                         help="Your X-165 controller ID (or UPONOR_CONTROLLER_ID)")
     parser.add_argument("--retry-rf", action="store_true", help="Retry RF input errors after 5 seconds")
     parser.add_argument("--interface-id", type=thermostat_id, default=os.getenv("UPONOR_INTERFACE_ID") or None,
-                        help="Opt into provisional I-167 house-temperature support for this interface ID")
+                        help="Opt into observed I-167 frame diagnostics and house-temperature support for this interface ID")
     parser.add_argument("--frequency", type=int, default=868_250_000)
     parser.add_argument("--sample-rate", type=int, default=250_000)
     parser.add_argument("--ppm", type=int, default=0)
@@ -189,6 +189,19 @@ def present_decoded(
         frame_journal.observe(result["packet"], observed_at, frame=frame, result=result,
                               sample_offset=burst.start_sample, sample_rate=sample_rate)
     if frame is None:
+        if interface_id is not None:
+            try:
+                remote = parse_remote_setpoint(result["packet"], interface_id=interface_id)
+            except FrameError:
+                pass
+            else:
+                if not quiet:
+                    print(f"[{observed_at.isoformat(timespec='milliseconds')}] I-167 {interface_id.hex().upper()} "
+                          f"remote setpoint: room_primary=0x{remote.room_primary:02X} "
+                          f"remote={'on' if remote.remote_enabled else 'off'} "
+                          f"setpoint={display_temperature(remote.raw_setpoint)} C "
+                          "(diagnostic only; not published)", flush=True)
+                return True, False  # I-167 frames do not increase the thermostat count.
         if interface_id is not None and controller_id is not None:
             try:
                 mode = parse_system_mode(result["packet"], interface_id=interface_id)

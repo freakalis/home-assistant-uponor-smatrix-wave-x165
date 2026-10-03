@@ -38,7 +38,7 @@ host networking, privileged mode or fixed USB device path is required.
    validates both files and shows candidate controller, display and thermostat
    IDs. The receiver starts automatically after a valid upload.
 5. Alternatively, enter the eight-digit hexadecimal `controller_id` manually.
-   Add `interface_id` if I-167 house temperature and system mode are wanted.
+   Add `interface_id` to receive observed I-167 frames as well.
 6. Enable **Start on boot** after reception has been verified.
 
 Allow several minutes for periodic thermostat reports. The log should first
@@ -68,7 +68,7 @@ Ingress.
 | Option | Purpose |
 | --- | --- |
 | `controller_id` | X-165 ID; optional when supplied by an uploaded log |
-| `interface_id` | Optional I-167 ID for house temperature and system mode |
+| `interface_id` | Optional I-167 ID for house temperature, system mode and L44 remote-setpoint diagnostics |
 | `mqtt_host`, `mqtt_port` | MQTT broker address and port |
 | `mqtt_username`, `mqtt_password` | MQTT broker credentials |
 | `topic_prefix` | MQTT state prefix, default `uponor` |
@@ -79,6 +79,11 @@ Ingress.
 | `workers` | Decoder workers; keep the default 1 unless decoding falls behind |
 | `threshold_db` | RF burst detection threshold |
 | `debug_device` | Optional thermostat ID for focused debug output |
+
+Valid L44 remote-setpoint frames from the selected I-167 are shown in the app
+log with their observed timestamp, room code, remote-control state and setpoint.
+This is receive-only diagnostics: L44 values are not published to MQTT and the
+room code is not assumed to identify the same room in another installation.
 
 The legacy `sd_import`, `sd_backup_file` and `sd_log_file` options support
 reading copies from Home Assistant's `/share` directory. Uploading through

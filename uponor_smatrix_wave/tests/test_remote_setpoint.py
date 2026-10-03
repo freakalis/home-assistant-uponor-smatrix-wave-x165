@@ -1,10 +1,17 @@
 """L44 regression vectors from our CRC-valid I-167 captures; no RF transmit."""
 
+from datetime import datetime, timezone
 import unittest
+from unittest.mock import Mock, patch
+
+import numpy as np
 
 from uponor_smatrix_wave_x165.crc import crc16_cms, crc16_modbus
 from uponor_smatrix_wave_x165.interface import build_remote_setpoint, parse_remote_setpoint
+from uponor_smatrix_wave_x165.live import LiveBurst
 from uponor_smatrix_wave_x165.protocol import FrameError
+from uponor_smatrix_wave_x165.receiver import present_decoded
+from uponor_smatrix_wave_x165.state import DeviceRegistry
 
 
 INTERFACE_ID = bytes.fromhex("14 FF 37 33")
@@ -75,6 +82,50 @@ class RemoteSetpointRegressionTests(unittest.TestCase):
         bad[-2:] = crc16_cms(bad[8:-2]).to_bytes(2, "big")
         with self.assertRaisesRegex(FrameError, "unexpected remote-setpoint frame structure"):
             parse_remote_setpoint(bytes(bad), interface_id=INTERFACE_ID)
+
+    def test_live_receiver_logs_valid_l44_without_publishing(self):
+        observed_at = datetime(2026, 10, 2, 21, 28, 34, tzinfo=timezone.utc)
+        burst = LiveBurst(250, 500, np.zeros(1), 1, 0)
+        bridge = Mock()
+        journal = Mock()
+        registry = DeviceRegistry()
+        with patch("builtins.print") as output:
+            result = present_decoded(
+                burst, ({"packet": VARIABLE_BYTE_25}, None, "unsupported thermostat frame length 44"),
+                sample_rate=250_000, capture_start=observed_at, registry=registry,
+                debug=False, mqtt_bridge=bridge, frame_journal=journal,
+                interface_id=INTERFACE_ID,
+            )
+        self.assertEqual(result, (True, False))
+        self.assertEqual(registry.devices, {})
+        self.assertEqual(bridge.mock_calls, [])
+        journal.observe.assert_called_once()
+        line = output.call_args.args[0]
+        self.assertIn("2026-10-02T21:28:34.001+00:00", line)
+        self.assertIn("room_primary=0x91", line)
+        self.assertIn("remote=on", line)
+        self.assertIn("setpoint=19.5 C", line)
+        self.assertIn("not published", line)
+
+    def test_live_receiver_rejects_wrong_interface_and_bad_crc(self):
+        burst = LiveBurst(0, 1, np.zeros(1), 1, 0)
+        bridge = Mock()
+        bad_crc = bytearray(VARIABLE_BYTE_25)
+        bad_crc[25] ^= 1
+        for raw, selected_id in (
+            (VARIABLE_BYTE_25, bytes(4)),
+            (bytes(bad_crc), INTERFACE_ID),
+        ):
+            with self.subTest(selected_id=selected_id, size=len(raw)), patch("builtins.print") as output:
+                result = present_decoded(
+                    burst, ({"packet": raw}, None, "unsupported thermostat frame"),
+                    sample_rate=250_000, capture_start=datetime.now(timezone.utc),
+                    registry=DeviceRegistry(), debug=False, mqtt_bridge=bridge,
+                    interface_id=selected_id,
+                )
+                self.assertEqual(result, (True, False))
+                output.assert_not_called()
+        self.assertEqual(bridge.mock_calls, [])
 
 
 if __name__ == "__main__":
